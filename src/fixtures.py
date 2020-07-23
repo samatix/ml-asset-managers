@@ -31,7 +31,8 @@ class CorrelationFactory:
 
     def get_cov_sub(self, n_obs, n_cols, sigma):
         """
-        :return: Sub correlation matrix of the variables.
+        :return: Generate a random sub covariance matrix from
+            randomly generated observations.
         :rtype: ndarray
         """
         if n_cols == 1:
@@ -42,12 +43,11 @@ class CorrelationFactory:
             scale=sigma,
             size=sub_correl.shape
         )
-        sub_correl = np.cov(sub_correl, rowvar=False)
-        return sub_correl
+        return np.cov(sub_correl, rowvar=False)
 
-    def get_rnd_block_cov(self, sigma=1):
+    def get_rnd_block_cov(self, n_blocks, sigma=1):
         """
-        Generate a block random correlation matrix
+        Generate a block random covariance matrix
         :param sigma: Standard deviation (spread or "width") of the 
             distribution. Must be non-negative.
         :type sigma: float
@@ -55,14 +55,14 @@ class CorrelationFactory:
         :rtype: 
         """
         parts = self.random_state.choice(
-            range(1, self.n_cols - (self.min_block_size - 1) * self.n_blocks),
-            self.n_blocks - 1,
+            range(1, self.n_cols - (self.min_block_size - 1) * n_blocks),
+            n_blocks - 1,
             replace=False
         )
         parts.sort()
         parts = np.append(
             parts,
-            self.n_cols - (self.min_block_size - 1) * self.n_blocks
+            self.n_cols - (self.min_block_size - 1) * n_blocks
         )
         parts = np.append(parts[0], np.diff(parts)) - 1 + self.min_block_size
         cov = None
@@ -73,6 +73,7 @@ class CorrelationFactory:
             if cov is None:
                 cov = cov_.copy()
             else:
+                # Create a block diagonal matrix from provided arrays
                 cov = block_diag(cov, cov_)
         return cov
 
@@ -96,8 +97,9 @@ class CorrelationFactory:
         :return:
         :rtype:
         """
-        cov0 = self.get_rnd_block_cov(sigma=self.sigma_b)
-        cov1 = self.get_rnd_block_cov(sigma=self.sigma_n)  # add noise
+        cov0 = self.get_rnd_block_cov(sigma=self.sigma_b,
+                                      n_blocks=self.n_blocks)
+        cov1 = self.get_rnd_block_cov(sigma=self.sigma_n, n_blocks=1)  # add noise
         cov0 += cov1
         corr0 = self.cov2corr(cov0)
         return corr0
