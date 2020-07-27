@@ -19,7 +19,7 @@ class CorrelationFactory:
             global noise. Must be non-negative. Can be set to 0 to remove the
             noise
         :type sigma_n: float
-        :param seed: Seed for random varibales generation
+        :param seed: Seed for random variables generation
         :type seed: None | int | instance of np.RandomState
         """
         self.n_cols = n_cols
