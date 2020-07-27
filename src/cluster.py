@@ -87,7 +87,7 @@ class KMeansHL(KMeansBase):
                 mean = np.mean(silhouettes, axis=0)[1]
                 vol = np.std(silhouettes, axis=0)[1]
                 if vol != 0.:
-                    yield key, mean/vol
+                    yield key, mean / vol
                 else:
                     yield key, 0.
             else:
@@ -105,10 +105,10 @@ class KMeansHL(KMeansBase):
         clusters_scores = tuple(self.eval_scores(new_labels, new_silhouette))
         _, new_clusters_scores_avg = np.mean(np.nan_to_num(clusters_scores),
                                              axis=0)
-        print(f"Found something {new_clusters_scores_avg} > "
-              f"{clusters_scores_avg}")
+        logger.info(f"A solution with score {new_clusters_scores_avg} using "
+                    f"KMeans HL found compared to the original score  "
+                    f"{clusters_scores_avg}")
         if new_clusters_scores_avg > clusters_scores_avg:
-            print("Found a better solution")
             # TODO: Trigger recalculation of kmeans attributes from new labels
             self.labels_ = new_labels
             self.quality = new_quality
@@ -146,7 +146,6 @@ class KMeansHL(KMeansBase):
                 copy_x=self.copy_x,
                 algorithm=self.algorithm
             ).fit(corr_sub)
-            print(f"Original {id(self)}, New {id(kmeans_sub)}")
             self.merge(sub_other=kmeans_sub, corr=corr,
                        cluster_redo=cluster_redo,
                        clusters_scores_avg=clusters_scores_avg)
