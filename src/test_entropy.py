@@ -5,7 +5,7 @@ import numpy.testing as npt
 from src import entropy
 
 
-class MyTestCase(unittest.TestCase):
+class EntropyTestCase(unittest.TestCase):
 
     def setUp(self) -> None:
         self.x = np.array([

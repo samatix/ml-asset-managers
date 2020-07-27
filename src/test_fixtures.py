@@ -35,7 +35,5 @@ class CorrelationFactoryTestCase(unittest.TestCase):
         npt.assert_almost_equal(corr.diagonal().max(), 1)
 
 
-
-
 if __name__ == '__main__':
     unittest.main()
