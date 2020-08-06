@@ -72,7 +72,8 @@ class TripleBarrier:
         """
         # Get target
         target_filtered = target.loc[time_events]
-        target_filtered = target_filtered[target_filtered > self.min_return]  # minRet
+        target_filtered = target_filtered[
+            target_filtered > self.min_return]  # minRet
         # Get tl (max holding period)
         if tl is False:
             tl = pd.Series(pd.NaT, index=time_events)
@@ -83,7 +84,8 @@ class TripleBarrier:
                             'side': side_},
                            axis=1).dropna(subset=['target'])
 
-        df0 = self.simulate(prices=prices, events=events, molecule=events.index)
+        df0 = self.simulate(prices=prices, events=events,
+                            molecule=events.index)
         events['tl'] = df0.dropna(how='all').min(axis=1)  # pd.min ignores nan
         events = events.drop('side', axis=1)
         return events
@@ -127,7 +129,8 @@ class TripleBarrier:
                 df0 > pt[loc]].index.min()  # earliest profit taking.
         return out
 
-    def get_bins(self, events, prices):
+    @staticmethod
+    def get_bins(events, prices):
 
         # 1) prices aligned with events
         events_ = events.dropna(subset=['tl'])

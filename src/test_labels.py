@@ -3,6 +3,7 @@ import datetime as dt
 
 import pandas as pd
 import pandas.testing as pdt
+import numpy as np
 
 from src import labels
 
@@ -187,6 +188,51 @@ class TripleBarrierTestCase(unittest.TestCase):
         )
 
         pdt.assert_frame_equal(events_expected, events_calculated)
+
+    def test_get_bins_time_limit_barriers(self):
+        data = {
+            'tl': [
+                dt.datetime.fromisoformat("2020-08-01 08:00:03"), #0
+                dt.datetime.fromisoformat("2020-08-01 08:00:03"), #1
+                dt.datetime.fromisoformat("2020-08-01 08:00:03"), #2
+                dt.datetime.fromisoformat("2020-08-01 08:00:04"), #3
+                dt.datetime.fromisoformat("2020-08-01 08:00:05"), #4
+                dt.datetime.fromisoformat("2020-08-01 08:00:08"), #5
+                dt.datetime.fromisoformat("2020-08-01 08:00:09"), #6
+                dt.datetime.fromisoformat("2020-08-01 08:00:10"), #7
+                dt.datetime.fromisoformat("2020-08-01 08:00:11"), #8
+                dt.datetime.fromisoformat("2020-08-01 08:00:12"), #9
+            ],
+            'target': [0.1 for _ in range(10)]
+        }
+        events = pd.DataFrame(
+            data=data, index=self.events.index
+        )
+
+        triple_barrier = labels.TripleBarrier()
+
+        out_calculated = triple_barrier.get_bins(events=events,
+                                                 prices=self.prices)
+
+        data_expected = {
+            'ret': [12 / 10 - 1,
+                    12 / 10.1 - 1,
+                    12 / 10.2 - 1 ,
+                    10.1 / 12 - 1,
+                    9 / 10.1 - 1,
+                    9.3/9 - 1,
+                    9.4/9.1 - 1,
+                    np.nan,
+                    np.nan,
+                    np.nan],
+            'bin': [1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, np.nan, np.nan,
+                    np.nan]
+        }
+        out_expected = pd.DataFrame(
+            data=data_expected, index=self.events.index
+        )
+
+        pdt.assert_frame_equal(out_expected, out_calculated)
 
 
 if __name__ == '__main__':
