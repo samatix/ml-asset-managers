@@ -145,34 +145,29 @@ class TripleBarrier:
 
 
 class TrendScan:
-    def __init__(self, molecule, sample, span):
+    def simulate(self, prices, molecule, span):
         """
         Derive labels from the sign of t-value of the linear trend
+        :param prices: Time series of {x_t}
+        :type prices: array like
         :param molecule: the index of the observations we wish to label
         :type molecule: array like
-        :param sample: Time series of {x_t}
-        :type sample: array like
         :param span: set of values of L, the look forward period
         :type span: array like
         """
-        self.molecule = molecule
-        self.sample = sample
-        self.span = span
-
-    def fit(self):
         out = pd.DataFrame(
-            index=self.molecule,
+            index=molecule,
             columns=['tl', 'tval', 'bin']
         )
-        horizons = np.xrange(*self.span)
-        for dt in self.molecule:
+        horizons = np.xrange(*span)
+        for dt in molecule:
             df = pd.Series()
-            iloc = self.sample.index.get_loc(dt)
-            if iloc + max(horizons) > self.sample.shape[0]:
+            iloc = prices.index.get_loc(dt)
+            if iloc + max(horizons) > prices.shape[0]:
                 continue
             for horizon in horizons:
-                dt1 = self.sample.index[iloc + horizon - 1]
-                df1 = self.sample.loc[dt:dt1]
+                dt1 = prices.index[iloc + horizon - 1]
+                df1 = prices.loc[dt:dt1]
                 df.loc[dt1] = t_value_lin(df1.values)
 
             dt1 = df.replace([-np.inf, np.inf, np.nan], 0).abs().idxmax()
