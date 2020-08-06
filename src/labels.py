@@ -34,7 +34,7 @@ def getDailyVol(close, span0=100):
 
 
 class TripleBarrier:
-    def __init__(self, barrier_up, barrier_down, min_return):
+    def __init__(self, barrier_up=0, barrier_down=0, min_return=-999):
         """
         :param min_return: The minimum target return required for running
         a triple barrier search.
@@ -81,12 +81,12 @@ class TripleBarrier:
         events = pd.concat({'tl': tl, 'target': target, 'side': side_},
                            axis=1).dropna(subset=['target'])
 
-        df0 = self.fit(prices=prices, events=events, molecule=events.index)
+        df0 = self.simulate(prices=prices, events=events, molecule=events.index)
         events['tl'] = df0.dropna(how='all').min(axis=1)  # pd.min ignores nan
         events = events.drop('side', axis=1)
         return events
 
-    def fit(self, prices, events, molecule):
+    def simulate(self, prices, events, molecule):
         """
         Apply stop loss/profit taking, if it takes place before tl
         (end of event)
@@ -124,7 +124,7 @@ class TripleBarrier:
                 df0 > pt[loc]].index.min()  # earliest profit taking.
         return out
 
-    def getBins(self, events, prices):
+    def get_bins(self, events, prices):
 
         # 1) prices aligned with events
         events_ = events.dropna(subset=['tl'])
