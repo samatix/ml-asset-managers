@@ -159,6 +159,35 @@ class TripleBarrierTestCase(unittest.TestCase):
         )
         pdt.assert_frame_equal(out_expected, out_calculated)
 
+    def test_get_events_time_limit_barriers(self):
+        triple_barrier = labels.TripleBarrier(barrier_up=1, barrier_down=1)
+        events_calculated = triple_barrier.get_events(
+            prices=self.prices,
+            time_events=self.prices.index,
+            target=self.target,
+            tl=self.tl_dyn
+        )
+        expected_data = {
+            'tl': [
+                dt.datetime.fromisoformat("2020-08-01 08:00:03"),
+                dt.datetime.fromisoformat("2020-08-01 08:00:03"),
+                dt.datetime.fromisoformat("2020-08-01 08:00:03"),
+                dt.datetime.fromisoformat("2020-08-01 08:00:04"),
+                dt.datetime.fromisoformat("2020-08-01 08:00:05"),
+                dt.datetime.fromisoformat("2020-08-01 08:00:08"),
+                dt.datetime.fromisoformat("2020-08-01 08:00:09"),
+                dt.datetime.fromisoformat("2020-08-01 08:00:10"),
+                dt.datetime.fromisoformat("2020-08-01 08:00:11"),
+                dt.datetime.fromisoformat("2020-08-01 08:00:12"),
+            ],
+            'target': [0.1 for _ in range(10)]
+        }
+        events_expected = pd.DataFrame(
+            data=expected_data, index=self.events.index
+        )
+
+        pdt.assert_frame_equal(events_expected, events_calculated)
+
 
 if __name__ == '__main__':
     unittest.main()

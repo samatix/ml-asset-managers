@@ -4,7 +4,6 @@ import pandas as pd
 
 
 # TODO: Implement Meta Labeling
-# TODO: Implement Triple Barrier method
 
 def t_value_lin(sample):
     """
@@ -67,18 +66,21 @@ class TripleBarrier:
         :param tl: A pandas series with the timestamps of the vertical
         barriers. We pass a False when we want to disable vertical barriers.
         :type tl: pd.Series or Boolean
-        :return:
-        :rtype:
+        :return: pd.DataFrame with the time index and a tl and target columns
+        and the next date when one of the triple barriers is hit
+        :rtype: pd.DataFrame
         """
         # Get target
-        target = target.loc[time_events]
-        target = target[target > self.min_return]  # minRet
+        target_filtered = target.loc[time_events]
+        target_filtered = target_filtered[target_filtered > self.min_return]  # minRet
         # Get tl (max holding period)
         if tl is False:
             tl = pd.Series(pd.NaT, index=time_events)
         # Form events object, apply stop loss on tl
-        side_ = pd.Series(1., index=target.index)
-        events = pd.concat({'tl': tl, 'target': target, 'side': side_},
+        side_ = pd.Series(1., index=target_filtered.index)
+        events = pd.concat({'tl': tl,
+                            'target': target_filtered,
+                            'side': side_},
                            axis=1).dropna(subset=['target'])
 
         df0 = self.simulate(prices=prices, events=events, molecule=events.index)
@@ -100,8 +102,9 @@ class TripleBarrier:
         :param molecule: A list with the subset of event indices
         that will be processed by a single thread.
         :type molecule: pd.DataFrame
-        :return:
-        :rtype:
+        :return: pd.DataFrame with the time index and 3 columns of
+        when one of the barriers is hit
+        :rtype: pd.DataFrame
         """
         #
         events_ = events.loc[molecule]
