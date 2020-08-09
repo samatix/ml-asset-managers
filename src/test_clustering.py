@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import numpy.testing as npt
 
-from src.fixtures import CorrelationFactory
+from src.testing.fixtures import CorrelationFactory
 from src.cluster import KMeansBase, KMeansHL
 
 

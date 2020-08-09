@@ -145,7 +145,7 @@ assert numb_bins, 7
 - Generate a random block correlation matrix
 
 ```python
-from src.fixtures import CorrelationFactory
+from src.testing.fixtures import CorrelationFactory
 
 cf = CorrelationFactory(
                         n_cols=10,

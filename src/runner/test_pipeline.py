@@ -2,8 +2,6 @@ import unittest
 import timeit
 import logging
 
-import numba
-
 from src.runner import pipeline
 
 logging.basicConfig(level=logging.DEBUG)
