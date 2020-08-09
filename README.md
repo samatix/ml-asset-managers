@@ -18,6 +18,8 @@ Clone this repository locally:
 
 ```
 git clone https://github.com/samatix/ml-asset-managers.git
+pip install -r requirements.txt
+python setup.py build_ext --inplace
 ``` 
 
 ---
