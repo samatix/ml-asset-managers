@@ -12,11 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import numpy as np
+import pandas as pd
 
-class TickBarFn:
+from src.runner import pipeline
+
+
+class TickBarFn(pipeline.DoFn):
     """
     Parse the tick objects into Tick Bars
     """
+
     def __init__(self, threshold=10):
         """
         Tick Bar Function
@@ -27,18 +33,20 @@ class TickBarFn:
         self.buffer = 0
         self.threshold = threshold
 
-    def process(self, element):
-        self.buffer += 1
-        self.ticks_processed += 1
-        if self.buffer == self.threshold:
-            self.buffer = 0
-            return element
+    def process(self, elements):
+        for e in elements:
+            self.buffer += 1
+            self.ticks_processed += 1
+            if self.buffer == self.threshold:
+                self.buffer = 0
+                yield e
 
 
-class VolumeBarFn:
+class VolumeBarFn(pipeline.DoFn):
     """
     Parse the tick objects into volume bars
     """
+
     def __init__(self, threshold=10000):
         """
         Volume Bar Function
@@ -50,9 +58,10 @@ class VolumeBarFn:
         self.buffer = 0
         self.threshold = threshold
 
-    def process(self, element):
-        self.buffer += element.quantity * element.price
-        self.ticks_processed += 1
-        if self.buffer >= self.threshold:
-            self.buffer = 0
-            return element
+    def process(self, elements):
+        for e in elements:
+            self.buffer += e.quantity * e.price
+            self.ticks_processed += 1
+            if self.buffer >= self.threshold:
+                self.buffer = 0
+                yield e
