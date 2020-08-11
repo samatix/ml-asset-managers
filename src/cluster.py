@@ -67,10 +67,12 @@ class KMeansBase(KMeans):
         self.n_clusters = len(best_labels_)
         return self
 
-    def get_cluster(self):
+    @property
+    def clusters(self):
         cluster = {}
         for i in self.labels_:
             cluster[i] = np.where(self.labels_ == i)[0]
+        return cluster
 
 
 class KMeansHL(KMeansBase):
