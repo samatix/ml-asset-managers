@@ -13,7 +13,7 @@ from src.data.models import Quote, Tick
 
 
 class CorrelationFactory:
-    def __init__(self, n_cols, n_blocks, seed=None,
+    def __init__(self, n_cols=None, n_blocks=None, seed=None,
                  min_block_size=1, sigma_b=0.5, sigma_n=1):
         """
         Generate a subcorrelation matrix
@@ -113,6 +113,19 @@ class CorrelationFactory:
         cov0 += cov1
         corr0 = self.cov2corr(cov0)
         return corr0
+
+    def get_rnd_covariance(self, facts_number=1):
+        """
+        Get a random covariance and add signal to it
+        :param facts_number: the number of factors
+        :type facts_number: int
+        :return: a full rank covariance matrix
+        :rtype: np.array
+        """
+        w = np.random.normal(size=(self.n_cols, facts_number))
+        covariance = np.dot(w, w.T)
+        covariance += np.diag(np.random.uniform(size=self.n_cols))
+        return covariance
 
 
 class TickFactory:
