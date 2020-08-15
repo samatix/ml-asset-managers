@@ -132,6 +132,16 @@ class MarcenkoPastur:
                              f"'constant' or 'shrink'. The method provided is "
                              f"{method}")
 
+    def detone(self, eigenvalues, eigenvectors):
+        # Test if the correlation matrix has a market component
+        eigenvalues_m = eigenvalues[0, 0]
+        eigenvectors_m = eigenvectors[:, 0]
+
+        cov = (eigenvectors @ eigenvalues @ eigenvectors.T) - \
+              (eigenvectors_m @ eigenvalues_m @ eigenvectors_m.T)
+
+        return cov2corr(cov)
+
 
 def get_pca(matrix):
     """
