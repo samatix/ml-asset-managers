@@ -87,12 +87,14 @@ class MarcenkoPastur:
         :rtype:
         """
         facts_number = self.facts_number(eigenvalues)
-        eigenvalues_ = np.diag(eigenvalues).copy()
+        eigenvalues_ = eigenvalues.diagonal().copy()
+        # Denoising by making constant the eigen values past facts_number
         eigenvalues_[facts_number:] = eigenvalues_[
                                       facts_number:].sum() / float(
             eigenvalues_.shape[0] - facts_number)
         eigenvalues_ = np.diag(eigenvalues_)
-        cov = np.dot(eigenvalues, eigenvalues_).dot(eigenvector.T)
+        cov = np.dot(eigenvector, eigenvalues_).dot(eigenvector.T)
+        # Rescaling
         return cov2corr(cov)
 
 
