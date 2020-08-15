@@ -76,16 +76,7 @@ class MarcenkoPastur:
                              f"run the fit method before calculating the "
                              f"facts number")
 
-    def denoise(self, eigenvalues, eigenvector):
-        """
-        Remove noise from corr by fixing random eigenvalues
-        :param eigenvalues:
-        :type eigenvalues:
-        :param eigenvector:
-        :type eigenvector:
-        :return:
-        :rtype:
-        """
+    def _denoise_constant_residual(self, eigenvalues, eigenvectors):
         facts_number = self.facts_number(eigenvalues)
         eigenvalues_ = eigenvalues.diagonal().copy()
         # Denoising by making constant the eigen values past facts_number
@@ -93,9 +84,53 @@ class MarcenkoPastur:
                                       facts_number:].sum() / float(
             eigenvalues_.shape[0] - facts_number)
         eigenvalues_ = np.diag(eigenvalues_)
-        cov = np.dot(eigenvector, eigenvalues_).dot(eigenvector.T)
+        cov = eigenvectors @ eigenvalues_ @ eigenvectors.T
         # Rescaling
         return cov2corr(cov)
+
+    def _denoise_shrink(self, eigenvalues, eigenvectors, alpha=0):
+
+        # Eigenvalues and eigenvectors corresponding
+        # to the eigenvalues less than the max value
+        facts_number = self.facts_number(eigenvalues)
+
+        eigenvalues_l = eigenvalues[:facts_number, :facts_number]
+        eigenvectors_l = eigenvectors[:, :facts_number]
+
+        # Eigenvalues and eigenvectors corresponding
+        # to the eigenvalues more than the max value
+
+        eigenvalues_r = eigenvalues[facts_number:, facts_number:]
+        eigenvectors_r = eigenvectors[:, facts_number:]
+
+        corr_l = eigenvectors_l @ eigenvalues_l @ eigenvectors_l.T
+        corr_r = eigenvectors_r @ eigenvalues_r @ eigenvectors_r.T
+
+        return corr_l + alpha * corr_r + (1 - alpha) * np.diag(
+            corr_r.diagonal())
+
+    def denoise(self, eigenvalues, eigenvectors, method="constant", alpha=0):
+        """
+        Remove noise from corr by fixing random eigenvalues
+        :param eigenvalues:
+        :type eigenvalues:
+        :param eigenvectors:
+        :type eigenvectors:
+        :param method:
+        :type method: str
+        :param alpha:
+        :type alpha:
+        :return:
+        :rtype:
+        """
+        if method == "constant":
+            return self._denoise_constant_residual(eigenvalues, eigenvectors)
+        elif method == "shrink":
+            return self._denoise_shrink(eigenvalues, eigenvectors, alpha=alpha)
+        else:
+            raise ValueError(f"The only available denoising methods are "
+                             f"'constant' or 'shrink'. The method provided is "
+                             f"{method}")
 
 
 def get_pca(matrix):
